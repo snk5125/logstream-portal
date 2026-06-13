@@ -1,0 +1,10 @@
+{
+  "id": "fork_3",
+  "name": "fork_3",
+  "final": false,
+  "disabled": false,
+  "filter": "(account_id=='522412052544' && workload=='orders_api' && source_name=='auth_log') || (account_id=='522412052544' && workload=='orders_api' && source_name=='syslog')",
+  "pipeline": "passthru",
+  "output": "fork_3_dest",
+  "description": "logstream-portal fork for stream 3"
+}

@@ -1,0 +1,28 @@
+{
+  "logging": {
+    "group": "default",
+    "ingest_port": 10300,
+    "archive_bucket": "log-archive-337394138208"
+  },
+  "edges": {
+    "acct_b": {
+      "account_id": "522412052544", "account_alias": "prod-ecommerce",
+      "sources": [
+        {"workload": "storefront_web", "source_name": "syslog", "eventsPerSec": 4},
+        {"workload": "storefront_web", "source_name": "nginx_access", "eventsPerSec": 8},
+        {"workload": "orders_api", "source_name": "syslog", "eventsPerSec": 3},
+        {"workload": "orders_api", "source_name": "auth_log", "eventsPerSec": 1},
+        {"workload": "orders_api", "source_name": "app_log", "eventsPerSec": 2}
+      ]
+    },
+    "acct_c": {
+      "account_id": "624627265315", "account_alias": "prod-platform",
+      "sources": [
+        {"workload": "identity_svc", "source_name": "syslog", "eventsPerSec": 3},
+        {"workload": "identity_svc", "source_name": "auth_log", "eventsPerSec": 1},
+        {"workload": "batch_etl", "source_name": "syslog", "eventsPerSec": 1},
+        {"workload": "batch_etl", "source_name": "cron_log", "eventsPerSec": 1}
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "stream": {
+    "name": "team-a-orders",
+    "type": "kinesis",
+    "resource": "logstream-team-a-orders",
+    "resource_arn": "arn:aws:kinesis:us-east-1:337394138208:stream/logstream-team-a-orders",
+    "region": "us-east-1"
+  },
+  "role_arn": "arn:aws:iam::337394138208:role/logstream/logstream-read-7-team-a-orders",
+  "consumer_account_id": "522412052544",
+  "trust_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {"AWS": "arn:aws:iam::522412052544:root"},
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  },
+  "permission_policy": {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": ["kinesis:GetRecords", "kinesis:GetShardIterator", "kinesis:DescribeStream", "kinesis:DescribeStreamSummary", "kinesis:ListShards"],
+        "Resource": "arn:aws:kinesis:us-east-1:337394138208:stream/logstream-team-a-orders"
+      }
+    ]
+  },
+  "usage": {
+    "assume_role": "aws sts assume-role --role-arn arn:aws:iam::337394138208:role/logstream/logstream-read-7-team-a-orders --role-session-name read-team-a-orders",
+    "read": "aws kinesis get-shard-iterator --stream-name logstream-team-a-orders --shard-id shardId-000000000000 --shard-iterator-type LATEST --query ShardIterator --output text | xargs -I{} aws kinesis get-records --shard-iterator {}"
+  }
+}

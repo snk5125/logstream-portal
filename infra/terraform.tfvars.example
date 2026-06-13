@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars and fill in real values.
+# NEVER commit terraform.tfvars — it is in .gitignore.
+
+# Your workstation or bastion IP/CIDR for ALB access.
+# Use "0.0.0.0/0" temporarily for plan/test, tighten to your /32 before apply.
+operator_cidr = "203.0.113.5/32"
+
+# Optional EC2 key pair name for SSH (leave empty to skip).
+# key_name = "my-key"
+
+# Databricks workspace (non-sensitive defaults — override if yours differs).
+databricks_host         = "https://dbc-2ef2bfc1-c689.cloud.databricks.com"
+databricks_warehouse_id = "0a3fea1c53bea9c6"
+
+# ─── Secrets: pass via environment variables, NOT this file ──────────────────
+#
+#   export TF_VAR_databricks_token="dapiXXXXXXXXXXXXXXX"
+#   export TF_VAR_cribl_password="<strong-password>"
+#   export TF_VAR_session_secret="$(openssl rand -hex 24)"
+#
+# Alternatively, store in a secrets manager and inject at plan/apply time.
+# ─────────────────────────────────────────────────────────────────────────────

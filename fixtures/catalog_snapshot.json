@@ -1,0 +1,54 @@
+{
+  "as_of": "2026-06-11T00:00:00+00:00",
+  "accounts": [
+    {
+      "account_id": "522412052544",
+      "account_alias": "prod-ecommerce",
+      "workloads": [
+        {
+          "name": "orders_api",
+          "schema": "acct_b__orders_api",
+          "environment": "prod",
+          "sources": [
+            {"fqn": "logging_demo.acct_b__orders_api.app_log", "name": "app_log", "log_type": "application", "sensitivity": "standard", "est_volume_per_min": 600, "description": "Structured application logs", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]},
+            {"fqn": "logging_demo.acct_b__orders_api.auth_log", "name": "auth_log", "log_type": "system", "sensitivity": "sensitive", "est_volume_per_min": 300, "description": "SSH/sudo/PAM auth events", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]},
+            {"fqn": "logging_demo.acct_b__orders_api.syslog", "name": "syslog", "log_type": "system", "sensitivity": "standard", "est_volume_per_min": 900, "description": "Host syslog from orders API tier", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]}
+          ]
+        },
+        {
+          "name": "storefront_web",
+          "schema": "acct_b__storefront_web",
+          "environment": "prod",
+          "sources": [
+            {"fqn": "logging_demo.acct_b__storefront_web.nginx_access", "name": "nginx_access", "log_type": "web", "sensitivity": "standard", "est_volume_per_min": 2400, "description": "Nginx access logs from storefront web tier", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]},
+            {"fqn": "logging_demo.acct_b__storefront_web.syslog", "name": "syslog", "log_type": "system", "sensitivity": "standard", "est_volume_per_min": 1200, "description": "Host syslog from storefront web tier", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "account_id": "624627265315",
+      "account_alias": "prod-platform",
+      "workloads": [
+        {
+          "name": "batch_etl",
+          "schema": "acct_c__batch_etl",
+          "environment": "prod",
+          "sources": [
+            {"fqn": "logging_demo.acct_c__batch_etl.cron_log", "name": "cron_log", "log_type": "system", "sensitivity": "standard", "est_volume_per_min": 120, "description": "Cron scheduler logs from ETL hosts", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]},
+            {"fqn": "logging_demo.acct_c__batch_etl.syslog", "name": "syslog", "log_type": "system", "sensitivity": "standard", "est_volume_per_min": 300, "description": "Host syslog from batch ETL hosts", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]}
+          ]
+        },
+        {
+          "name": "identity_svc",
+          "schema": "acct_c__identity_svc",
+          "environment": "prod",
+          "sources": [
+            {"fqn": "logging_demo.acct_c__identity_svc.auth_log", "name": "auth_log", "log_type": "system", "sensitivity": "sensitive", "est_volume_per_min": 450, "description": "SSH/sudo/PAM auth events", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]},
+            {"fqn": "logging_demo.acct_c__identity_svc.syslog", "name": "syslog", "log_type": "system", "sensitivity": "standard", "est_volume_per_min": 800, "description": "Host syslog from identity service", "columns": [{"name": "ts", "type": "timestamp"}, {"name": "host", "type": "string"}, {"name": "severity", "type": "string"}, {"name": "message", "type": "string"}]}
+          ]
+        }
+      ]
+    }
+  ]
+}

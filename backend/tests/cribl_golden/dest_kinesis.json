@@ -1,0 +1,10 @@
+{
+  "id": "fork_3_dest",
+  "type": "kinesis",
+  "streamName": "logstream-team-a-orders",
+  "region": "us-east-1",
+  "awsAuthenticationMethod": "auto",
+  "format": "json",
+  "compression": "none",
+  "description": "logstream-portal destination for stream 3"
+}

@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euxo pipefail
+
+# ── Bootstrap ─────────────────────────────────────────────────────────────────
+dnf install -y docker
+systemctl enable --now docker
+
+# ── Cribl single-instance (Plan B: standalone collector, NOT enrolled to leader) ─
+# No CRIBL_DIST_MODE → single-instance mode, which serves the FLAT config API
+# (/api/v1/system/inputs, /api/v1/pipelines, /api/v1/routes) that seed_cribl.py's
+# seed_edge() targets. (master mode would serve config under /m/<group>/ and 404
+# the flat paths.) The seeder pushes Datagen + Eval + TCP-output config to this
+# instance's own API on :9000 over SSM Session Manager. Outbound TCP to
+# endpoint_dns:10300 forwards tagged events to the logging account via PrivateLink.
+docker run -d --name cribl-edge --restart unless-stopped \
+  -p 9000:9000 \
+  cribl/cribl:latest
+
+# endpoint_dns and group are injected by Terraform templatefile().
+# They are used at seeder time (seed_cribl.py reads them from TF outputs),
+# not at boot time — the container itself only needs to be running.
+# Record them for debugging convenience.
+echo "ENDPOINT_DNS=${endpoint_dns}" >> /etc/environment
+echo "CRIBL_GROUP=${group}"         >> /etc/environment

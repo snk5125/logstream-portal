@@ -1,0 +1,10 @@
+{
+  "id": "fork_5_dest",
+  "type": "sqs",
+  "queueName": "logstream-team-b-audit",
+  "region": "us-east-1",
+  "awsAuthenticationMethod": "auto",
+  "format": "json",
+  "compression": "none",
+  "description": "logstream-portal destination for stream 5"
+}

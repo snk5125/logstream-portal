@@ -1,0 +1,79 @@
+#!/bin/bash
+set -euxo pipefail
+
+# ── Bootstrap ─────────────────────────────────────────────────────────────────
+dnf install -y docker
+systemctl enable --now docker
+
+# ── Portal data tier — dedicated EBS volume mounted at /opt/logstream-data ─────
+# Idempotent: format ONLY if the device has no filesystem (never reformat on a
+# reboot/redeploy, or the stream registry would be lost). The portal container
+# bind-mounts this path to /data so SQLite survives container recreation and
+# instance replacement.
+DATA_DEV=""
+for d in /dev/sdf /dev/xvdf /dev/nvme1n1; do
+  if [ -b "$d" ]; then DATA_DEV="$d"; break; fi
+done
+if [ -n "$DATA_DEV" ]; then
+  if ! blkid "$DATA_DEV" >/dev/null 2>&1; then
+    mkfs.ext4 -L logstream-data "$DATA_DEV"
+  fi
+  mkdir -p /opt/logstream-data
+  grep -q '/opt/logstream-data' /etc/fstab || \
+    echo "LABEL=logstream-data /opt/logstream-data ext4 defaults,nofail 0 2" >> /etc/fstab
+  mount -a
+fi
+
+# ── Cribl leader (Plan B: single-instance, built-in default worker group) ────
+# CRIBL_DIST_MODE=master boots a combined leader+worker on the default group.
+# Port 9000 = API/UI; port 10300 = TCP ingest from Edge workers via PrivateLink.
+docker run -d --name cribl-leader --restart unless-stopped \
+  -p 9000:9000 \
+  -p 10300:10300 \
+  -e CRIBL_DIST_MODE=master \
+  cribl/cribl:latest
+
+# ── Portal — pull from ECR, secrets from SSM ──────────────────────────────────
+aws ecr get-login-password --region ${region} \
+  | docker login --username AWS --password-stdin ${ecr_repo_url}
+
+DBX_HOST=$(aws ssm get-parameter --with-decryption \
+  --name /logstream/databricks_host \
+  --query Parameter.Value --output text --region ${region})
+
+DBX_TOKEN=$(aws ssm get-parameter --with-decryption \
+  --name /logstream/databricks_token \
+  --query Parameter.Value --output text --region ${region})
+
+DBX_WID=$(aws ssm get-parameter --with-decryption \
+  --name /logstream/databricks_warehouse_id \
+  --query Parameter.Value --output text --region ${region})
+
+CRIBL_PW=$(aws ssm get-parameter --with-decryption \
+  --name /logstream/cribl_password \
+  --query Parameter.Value --output text --region ${region})
+
+SESS=$(aws ssm get-parameter --with-decryption \
+  --name /logstream/session_secret \
+  --query Parameter.Value --output text --region ${region})
+
+# NOTE: the portal runs in the default (bridge) network, so "localhost" inside
+# the container is the container itself — NOT the host where the Cribl leader
+# publishes :9000. Reach the leader via the Docker host-gateway alias instead.
+docker run -d --name portal --restart unless-stopped \
+  -p 8000:8000 \
+  --add-host host.docker.internal:host-gateway \
+  -v /opt/logstream-data:/data \
+  -e DATABRICKS_HOST="$DBX_HOST" \
+  -e DATABRICKS_TOKEN="$DBX_TOKEN" \
+  -e DATABRICKS_WAREHOUSE_ID="$DBX_WID" \
+  -e UC_CATALOG_NAME=logging_demo \
+  -e AWS_REGION=${region} \
+  -e RESOURCE_PREFIX=logstream- \
+  -e CRIBL_BASE_URL=http://host.docker.internal:9000 \
+  -e CRIBL_GROUP=default \
+  -e CRIBL_USERNAME=admin \
+  -e CRIBL_PASSWORD="$CRIBL_PW" \
+  -e PORTAL_SESSION_SECRET="$SESS" \
+  -e CATALOG_SNAPSHOT_SEED=/app/fixtures/catalog_snapshot.json \
+  ${ecr_repo_url}:latest
