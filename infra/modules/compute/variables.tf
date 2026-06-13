@@ -11,6 +11,14 @@ variable "key_name" {
   default = ""
 }
 
+# Cribl Edge enrollment auth token (leader Distributed Settings → Auth token).
+# Used only by managed Edge bootstrap; passed in via TF_VAR / tfvars, never committed.
+variable "cribl_auth_token" {
+  type      = string
+  sensitive = true
+  default   = ""
+}
+
 variable "worker_b" {
   type = object({
     vpc_id       = string

@@ -7,14 +7,15 @@ terraform {
   }
 }
 
-# Plan-B: workers are standalone Edge instances (not enrolled to the leader).
-# Only port 10300 (data-forward) is needed — the :9000 management listener from
-# Plan A has been dropped. Each worker's TCP output forwards events to this NLB
-# on :10300, which proxies to the logging instance.
+# Managed-Edge model: workers enroll into the leader's default_fleet. Two ports
+# flow workload→logging over this NLB/endpoint-service:
+#   data   :10300 — each Edge's tcpjson output forwards tagged events
+#   enroll :4200  — Edge nodes enroll + pull config from the leader (control plane)
+# The leader's :9000 admin API is intentionally NOT exposed to the workload
+# accounts — the portal reads it on localhost; edges only need :4200.
 
 locals {
-  # Single port in Plan B (data forward only).
-  ports = { data = 10300 }
+  ports = { data = 10300, enroll = 4200 }
 }
 
 # ── Logging account: NLB + endpoint service ───────────────────────────────────
@@ -67,12 +68,16 @@ resource "aws_security_group" "vpce" {
   name_prefix = "ls-vpce-${var.workload_name}-"
   vpc_id      = var.consumer_vpc_id
 
-  # Only the Edge worker instances (their SG) may reach the endpoint on 10300.
-  ingress {
-    from_port       = 10300
-    to_port         = 10300
-    protocol        = "tcp"
-    security_groups = [var.consumer_sg_id]
+  # Only the Edge worker instances (their SG) may reach the endpoint, on each
+  # forwarded port (data :10300 + enroll :4200).
+  dynamic "ingress" {
+    for_each = local.ports
+    content {
+      from_port       = ingress.value
+      to_port         = ingress.value
+      protocol        = "tcp"
+      security_groups = [var.consumer_sg_id]
+    }
   }
 
   egress {

@@ -78,3 +78,10 @@ variable "session_secret" {
   sensitive   = true
   description = "Portal session secret — pass via TF_VAR_session_secret"
 }
+
+variable "cribl_auth_token" {
+  type        = string
+  sensitive   = true
+  default     = ""
+  description = "Cribl Edge enrollment auth token (leader Distributed Settings) — pass via tfvars/TF_VAR; managed-Edge bootstrap only"
+}

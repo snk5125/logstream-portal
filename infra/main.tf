@@ -49,6 +49,7 @@ module "compute" {
   logging_instance_type = var.logging_instance_type
   ecr_repo_url          = aws_ecr_repository.portal.repository_url
   key_name              = var.key_name
+  cribl_auth_token      = var.cribl_auth_token
 
   worker_b = {
     vpc_id       = module.net_b.vpc_id
@@ -136,6 +137,18 @@ resource "aws_security_group_rule" "logging_cribl_ingest_vpc" {
   type              = "ingress"
   from_port         = 10300
   to_port           = 10300
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidrs["logging"]]
+  security_group_id = module.net_logging.sg_id
+}
+
+# Edge nodes enroll into the leader's default_fleet over :4200 (NLB-forwarded,
+# so the traffic arrives from within the logging VPC CIDR).
+resource "aws_security_group_rule" "logging_cribl_enroll_vpc" {
+  provider          = aws.logging
+  type              = "ingress"
+  from_port         = 4200
+  to_port           = 4200
   protocol          = "tcp"
   cidr_blocks       = [var.vpc_cidrs["logging"]]
   security_group_id = module.net_logging.sg_id

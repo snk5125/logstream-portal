@@ -1,0 +1,24 @@
+#!/bin/bash
+set -euxo pipefail
+
+# ── Bootstrap ─────────────────────────────────────────────────────────────────
+dnf install -y docker
+systemctl enable --now docker
+
+# ── Managed Cribl Edge ────────────────────────────────────────────────────────
+# Enrolls into the leader's single default_fleet over PrivateLink
+# (endpoint_dns:4200). The leader's :4200 is reachable from this account via the
+# interface VPC endpoint (added in the privatelink module). All collection config
+# (datagen sources + tag Eval pipelines + tcpjson forward to the logging tier) is
+# pulled from the fleet — nothing is configured locally; the portal discovers
+# those inputs from the leader. Host networking so the container resolves the
+# endpoint DNS via the VPC resolver and forwards data outbound on :10300.
+docker run -d --name cribl-edge --restart unless-stopped \
+  --network host \
+  -e CRIBL_DIST_MODE=managed-edge \
+  -e CRIBL_EDGE=true \
+  -e CRIBL_DIST_LEADER_URL='tcp://${auth_token}@${endpoint_dns}:4200?group=${fleet}' \
+  cribl/cribl:latest
+
+echo "ENDPOINT_DNS=${endpoint_dns}" >> /etc/environment
+echo "CRIBL_FLEET=${fleet}"         >> /etc/environment

@@ -215,9 +215,13 @@ resource "aws_instance" "worker_b" {
   iam_instance_profile   = aws_iam_instance_profile.worker_b.name
   key_name               = var.key_name != "" ? var.key_name : null
 
-  user_data = templatefile("${path.module}/user_data_worker.sh.tftpl", {
+  # acct_b is the managed-Edge account: enroll into the leader's default_fleet.
+  # (acct_c stays standalone — the Free license allows only one fleet, which can
+  # carry a single shared forward endpoint, so only one account is managed.)
+  user_data = templatefile("${path.module}/user_data_worker_managed.sh.tftpl", {
     endpoint_dns = var.worker_b.endpoint_dns
-    group        = "acct_b"
+    auth_token   = var.cribl_auth_token
+    fleet        = "default_fleet"
   })
 
   lifecycle {
