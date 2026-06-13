@@ -8,7 +8,7 @@ from app.catalog.cache import SnapshotCache
 from app.catalog.service import CatalogService
 from app.catalog.uc_client import CatalogUnavailable
 from app.config import Settings
-from app.db import get_db
+from app.db import get_db, load_discovered
 from app.main import create_app
 
 FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
@@ -84,9 +84,11 @@ class FakeAccessRoles:
 @pytest.fixture()
 def fakes(tmp_path):
     cache = SnapshotCache(tmp_path / "snap.json", seed_path=FIXTURES / "catalog_snapshot.json")
+    conn = get_db(":memory:")
     return {
-        "conn": get_db(":memory:"),
-        "catalog": CatalogService(DownUC(), cache, "logging_demo"),
+        "conn": conn,
+        "catalog": CatalogService(DownUC(), cache, "logging_demo",
+                                  discovered_loader=lambda: load_discovered(conn)),
         "provisioner": FakeProvisioner(),
         "pipeline": FakePipelineAdmin(),
         "peek": FakePeek(),
@@ -102,6 +104,7 @@ def client(fakes, tmp_path):
         static_dir="", session_secret="test-secret",
         cribl_base_url="http://leader:9000", cribl_group="default",
         cribl_username="admin", cribl_password="pw",
+        cribl_fleet="default_fleet", cribl_sync_interval=0,
         resource_prefix="logstream-", logging_account_id="337394138208",
     )
     app = create_app(settings, services=fakes)

@@ -16,6 +16,8 @@ class Settings:
     cribl_group: str
     cribl_username: str
     cribl_password: str
+    cribl_fleet: str
+    cribl_sync_interval: int
     resource_prefix: str
     logging_account_id: str
 
@@ -35,6 +37,8 @@ def load_settings() -> Settings:
         cribl_group=env("CRIBL_GROUP", "default"),
         cribl_username=env("CRIBL_USERNAME", "admin"),
         cribl_password=env("CRIBL_PASSWORD", ""),
+        cribl_fleet=env("CRIBL_FLEET", "default_fleet"),
+        cribl_sync_interval=int(env("CRIBL_SYNC_INTERVAL_SECONDS", "0")),
         resource_prefix=env("RESOURCE_PREFIX", "logstream-"),
         logging_account_id=env("LOGGING_ACCOUNT_ID", "337394138208"),
     )

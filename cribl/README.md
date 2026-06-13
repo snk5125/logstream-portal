@@ -18,6 +18,32 @@ seeder/deploy topology differ.
 
 Verified against `cribl/cribl:latest` (single-instance master mode), 2026-06-12.
 
+## License re-gate (2026-06-13) — managed Edge fleet IS viable on Free
+
+The original gate tested the wrong operation (a second **named Stream worker
+group**). Re-probing the live leader (`i-08d23780caa239892`, via SSM) shows the
+Free license actually permits **one Stream worker group AND one Edge fleet**:
+
+```
+GET /api/v1/master/groups  →  default (type:stream) · default_fleet (isFleet:true,type:edge) · default_outpost
+                              ── both already present, no license error ──
+```
+
+- `default_fleet` is built in (`parentId:null, type:edge, onPrem:true`) and ready
+  to host Edge Nodes. `GET /m/default_fleet/system/inputs` works (13 built-in
+  input templates → discovery must filter to `type==datagen` + a `tag_*` pipeline).
+- **Subfleets are NOT allowed on Free:** `POST /master/groups {parentId:"default_fleet"}`
+  → `500 "Multiple fleets is prohibited by the current license"`. So per-account
+  separation via subfleets is out.
+
+**Config model (settled): single `default_fleet`.** Both Edge Nodes enroll in
+managed mode into the one `default_fleet` and share its config; each datagen
+source carries its account identity as **literals in its own `tag_*` pipeline**,
+so discovery reads correct `(account_id, workload, source_name)` tuples from
+`/m/default_fleet/system/inputs` regardless of which node runs the source. Trade:
+both nodes redundantly run all datagen sources (harmless for the demo — data is
+correctly tagged either way). No mapping ruleset / subfleet enumeration needed.
+
 ## Verified REST API (group = `default`)
 
 Base: `http://<leader>:9000/api/v1`

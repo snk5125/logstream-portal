@@ -1,4 +1,5 @@
 import logging
+import threading
 from pathlib import Path
 
 import boto3
@@ -8,11 +9,13 @@ from fastapi.staticfiles import StaticFiles
 
 from app.catalog.cache import SnapshotCache
 from app.catalog.service import CatalogService
+from app.catalog.sync import CatalogSyncService, start_poller
 from app.catalog.uc_client import UCClient
 from app.config import Settings, load_settings
 from app.aws.access_roles import AccessRoleService
 from app.cribl.admin import CriblAdmin
-from app.db import get_db, init_db
+from app.cribl.discovery import CriblDiscovery
+from app.db import get_db, init_db, load_discovered
 from app.routes import approvals as approvals_routes
 from app.routes import catalog as catalog_routes
 from app.routes import session as session_routes
@@ -46,7 +49,10 @@ def create_app(settings: Settings | None = None, services: dict | None = None) -
             seed_path=Path(settings.snapshot_seed) if settings.snapshot_seed else None,
         )
         uc = UCClient(settings.databricks_host, settings.databricks_token)
-        app.state.catalog = CatalogService(uc, cache, settings.uc_catalog)
+        app.state.catalog = CatalogService(
+            uc, cache, settings.uc_catalog,
+            discovered_loader=lambda: load_discovered(conn),
+        )
 
     # "provisioner", "peek", and "access_roles" must be supplied together, or none.
     if "provisioner" in services:
@@ -83,6 +89,27 @@ def create_app(settings: Settings | None = None, services: dict | None = None) -
             app.state.streams.reapply()
         except Exception:
             logger.warning("startup pipeline resync failed", exc_info=True)
+
+    # Background catalog sync: poll the Cribl leader's fleet for newly-collected
+    # Edge sources. Disabled (no thread) when the interval is 0 — the default for
+    # dev/tests. Discovery is injectable for tests via services["discovery"].
+    app.state.sync_stop = threading.Event()
+    app.state.sync_thread = None
+    if settings.cribl_sync_interval > 0:
+        discovery = services.get("discovery") or CriblDiscovery(
+            settings.cribl_base_url, settings.cribl_fleet,
+            settings.cribl_username, settings.cribl_password,
+        )
+        app.state.sync = CatalogSyncService(conn, discovery)
+        app.state.sync_thread = start_poller(
+            app.state.sync, settings.cribl_sync_interval, app.state.sync_stop,
+        )
+
+    @app.on_event("shutdown")
+    def stop_sync() -> None:
+        app.state.sync_stop.set()
+        if app.state.sync_thread is not None:
+            app.state.sync_thread.join(timeout=5)
 
     if settings.static_dir and Path(settings.static_dir).is_dir():
         static = Path(settings.static_dir)

@@ -37,6 +37,17 @@ CREATE TABLE IF NOT EXISTS stream_sources (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_streams_name_alive
   ON streams(name) WHERE status != 'deleted';
+CREATE TABLE IF NOT EXISTS discovered_sources (
+  account_id TEXT NOT NULL,
+  account_alias TEXT NOT NULL,
+  workload TEXT NOT NULL,
+  source_name TEXT NOT NULL,
+  environment TEXT NOT NULL DEFAULT 'prod',
+  est_volume_per_min INTEGER NOT NULL DEFAULT 0,
+  first_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+  last_seen_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (account_id, workload, source_name)
+);
 """
 
 PERSONAS = [
@@ -74,3 +85,36 @@ def init_db(conn: sqlite3.Connection) -> None:
     )
     for user_id, _, _, _, scope in PERSONAS:
         conn.execute("UPDATE users SET account_scope = ? WHERE id = ?", (scope, user_id))
+
+
+def upsert_discovered(conn: sqlite3.Connection, row: dict) -> None:
+    """Insert or refresh a Cribl-discovered source, keyed on its identity tuple.
+
+    Keeps first_seen_at; refreshes alias/environment/volume and last_seen_at.
+    """
+    conn.execute(
+        "INSERT INTO discovered_sources"
+        " (account_id, account_alias, workload, source_name, environment, est_volume_per_min)"
+        " VALUES (:account_id, :account_alias, :workload, :source_name, :environment, :est_volume_per_min)"
+        " ON CONFLICT(account_id, workload, source_name) DO UPDATE SET"
+        "   account_alias = excluded.account_alias,"
+        "   environment = excluded.environment,"
+        "   est_volume_per_min = excluded.est_volume_per_min,"
+        "   last_seen_at = datetime('now')",
+        {
+            "account_id": row["account_id"],
+            "account_alias": row.get("account_alias", row["account_id"]),
+            "workload": row["workload"],
+            "source_name": row["source_name"],
+            "environment": row.get("environment", "prod"),
+            "est_volume_per_min": int(row.get("est_volume_per_min") or 0),
+        },
+    )
+
+
+def load_discovered(conn: sqlite3.Connection) -> list[dict]:
+    return [dict(r) for r in conn.execute(
+        "SELECT account_id, account_alias, workload, source_name, environment,"
+        " est_volume_per_min, first_seen_at, last_seen_at FROM discovered_sources"
+        " ORDER BY account_id, workload, source_name"
+    )]

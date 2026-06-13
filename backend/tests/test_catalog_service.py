@@ -70,6 +70,50 @@ def test_builds_tree_grouped_by_account_and_saves_snapshot(tmp_path):
     assert (tmp_path / "snap.json").exists()
 
 
+def _discovered_row():
+    return {"account_id": "522412052544", "account_alias": "prod-ecommerce",
+            "workload": "orders_api", "source_name": "discovered_only",
+            "environment": "prod", "est_volume_per_min": 120}
+
+
+def test_get_tree_merges_discovered_on_live_path_and_keeps_snapshot_pure(tmp_path):
+    cache = SnapshotCache(tmp_path / "snap.json")
+    svc = CatalogService(FakeUC(), cache, "logging_demo",
+                         discovered_loader=lambda: [_discovered_row()])
+    tree = svc.get_tree()
+    sources = tree["accounts"][0]["workloads"][0]["sources"]
+    injected = [s for s in sources if s["name"] == "discovered_only"]
+    assert injected and injected[0]["sensitivity"] == "sensitive"
+    assert injected[0]["origin"] == "cribl"
+    # the persisted snapshot must remain pure UC (no discovered overlay)
+    snap = json.loads((tmp_path / "snap.json").read_text())
+    snap_names = [s["name"] for s in snap["accounts"][0]["workloads"][0]["sources"]]
+    assert "discovered_only" not in snap_names
+
+
+def test_get_tree_merges_discovered_on_stale_path(tmp_path):
+    cache = SnapshotCache(tmp_path / "snap.json")
+    CatalogService(FakeUC(), cache, "logging_demo").get_tree()  # warm pure-UC cache
+    svc = CatalogService(DownUC(), cache, "logging_demo",
+                         discovered_loader=lambda: [_discovered_row()])
+    tree = svc.get_tree()
+    assert tree["stale"] is True
+    names = [s["name"] for s in tree["accounts"][0]["workloads"][0]["sources"]]
+    assert "discovered_only" in names
+
+
+def test_get_tree_uc_wins_over_discovered_same_tuple(tmp_path):
+    cache = SnapshotCache(tmp_path / "snap.json")
+    # discovered row for syslog, which FakeUC already returns as 'standard'
+    row = {**_discovered_row(), "source_name": "syslog"}
+    tree = CatalogService(FakeUC(), cache, "logging_demo",
+                          discovered_loader=lambda: [row]).get_tree()
+    syslog = [s for s in tree["accounts"][0]["workloads"][0]["sources"]
+              if s["name"] == "syslog"]
+    assert len(syslog) == 1 and syslog[0]["sensitivity"] == "standard"
+    assert syslog[0].get("origin") != "cribl"
+
+
 def test_falls_back_to_cached_snapshot_when_uc_down(tmp_path):
     cache = SnapshotCache(tmp_path / "snap.json")
     CatalogService(FakeUC(), cache, "logging_demo").get_tree()  # warm the cache

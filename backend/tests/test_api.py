@@ -1,3 +1,4 @@
+from app.db import upsert_discovered
 from tests.conftest import AUTH_LOG, IDENTITY_AUTH, SYSLOG, login
 
 
@@ -61,6 +62,32 @@ def test_catalog_shows_my_subscriptions_after_fork(client):
     web = [w for a in tree["accounts"] for w in a["workloads"] if w["name"] == "storefront_web"][0]
     syslog = [s for s in web["sources"] if s["name"] == "syslog"][0]
     assert syslog["subscriptions"] == [{"stream_id": 1, "stream_name": "s1", "status": "active"}]
+
+
+def test_discovered_cribl_source_is_sensitive_and_forks_to_pending(client, fakes):
+    # A source seen at the Cribl Edge but not yet in UC, in dana's account scope.
+    upsert_discovered(fakes["conn"], {
+        "account_id": "522412052544", "account_alias": "prod-ecommerce",
+        "workload": "storefront_web", "source_name": "new_metric_log",
+        "environment": "prod", "est_volume_per_min": 120,
+    })
+    login(client)  # dana, scoped to 522412052544
+    tree = client.get("/api/catalog").json()
+    web = [w for a in tree["accounts"] for w in a["workloads"] if w["name"] == "storefront_web"][0]
+    disc = [s for s in web["sources"] if s["name"] == "new_metric_log"]
+    assert disc, "discovered source should surface in the catalog"
+    assert disc[0]["sensitivity"] == "sensitive"
+    assert disc[0]["origin"] == "cribl"
+    fqn = disc[0]["fqn"]
+    assert fqn == "cribl://522412052544/storefront_web/new_metric_log"
+    # forking the discovered (sensitive) source lands pending_approval, not active
+    resp = client.post("/api/streams",
+                       json={"name": "disc1", "type": "kinesis", "source_fqns": [fqn]})
+    assert resp.status_code == 201, resp.text
+    [src] = resp.json()["sources"]
+    assert src["status"] == "pending_approval"
+    assert all("new_metric_log" not in r["filter"]
+               for r in fakes["pipeline"].applied[-1]["routes"])
 
 
 # ── streams ──────────────────────────────────────────────────────────

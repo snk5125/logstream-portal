@@ -46,11 +46,65 @@ def annotate(tree: dict, sub_rows: list[dict]) -> dict:
     return out
 
 
+def merge_discovered(tree: dict, discovered_rows: list[dict]) -> dict:
+    """Overlay Cribl-discovered sources onto the UC-built tree; UC wins by tuple.
+
+    A discovered source whose (account_id, workload, source_name) already exists
+    in the tree is left untouched (UC is authoritative). One seen only in Cribl is
+    injected as ``sensitive`` (approval-gated) with an ``origin:"cribl"`` marker and
+    a synthetic stable fqn, creating account/workload nodes as needed. Pure: the
+    input tree is deep-copied, never mutated.
+    """
+    out = json.loads(json.dumps(tree))
+    accounts = out.setdefault("accounts", [])
+    existing = {
+        (a["account_id"], w["name"], s["name"])
+        for a in accounts for w in a["workloads"] for s in w["sources"]
+    }
+    by_id = {a["account_id"]: a for a in accounts}
+    for row in discovered_rows:
+        acct_id, wl, sn = row["account_id"], row["workload"], row["source_name"]
+        if (acct_id, wl, sn) in existing:
+            continue
+        existing.add((acct_id, wl, sn))
+        account = by_id.get(acct_id)
+        if account is None:
+            account = {"account_id": acct_id,
+                       "account_alias": row.get("account_alias", acct_id),
+                       "workloads": []}
+            by_id[acct_id] = account
+            accounts.append(account)
+        workload = next((w for w in account["workloads"] if w["name"] == wl), None)
+        if workload is None:
+            workload = {"name": wl, "schema": f"cribl__{wl}",
+                        "environment": row.get("environment", "prod"), "sources": []}
+            account["workloads"].append(workload)
+        workload["sources"].append({
+            "fqn": f"cribl://{acct_id}/{wl}/{sn}",
+            "name": sn,
+            "log_type": "unknown",
+            "sensitivity": "sensitive",
+            "est_volume_per_min": int(row.get("est_volume_per_min") or 0),
+            "description": "discovered from Cribl — pending classification",
+            "columns": [],
+            "origin": "cribl",
+        })
+    # preserve the UC build's sort invariants
+    for account in accounts:
+        for w in account["workloads"]:
+            w["sources"].sort(key=lambda s: s["name"])
+        account["workloads"].sort(key=lambda w: w["name"])
+    accounts.sort(key=lambda a: a["account_id"])
+    return out
+
+
 class CatalogService:
-    def __init__(self, uc_client, cache: SnapshotCache, catalog_name: str):
+    def __init__(self, uc_client, cache: SnapshotCache, catalog_name: str,
+                 discovered_loader=None):
         self._uc = uc_client
         self._cache = cache
         self._catalog_name = catalog_name
+        self._discovered = discovered_loader or (lambda: [])
 
     def get_tree(self) -> dict:
         try:
@@ -59,13 +113,13 @@ class CatalogService:
             snap = self._cache.load()
             if snap is None:
                 raise
-            return {**snap, "stale": True}
+            return merge_discovered({**snap, "stale": True}, self._discovered())
         snap = {
             "as_of": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "accounts": accounts,
         }
-        self._cache.save(snap)
-        return {**snap, "stale": False}
+        self._cache.save(snap)  # snapshot stays pure-UC; discovered merged only into the response
+        return merge_discovered({**snap, "stale": False}, self._discovered())
 
     def _build(self) -> list[dict]:
         accounts: dict[str, dict] = {}

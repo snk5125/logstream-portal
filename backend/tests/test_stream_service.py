@@ -81,6 +81,7 @@ def env(tmp_path):
         static_dir="", session_secret="x",
         cribl_base_url="http://leader:9000", cribl_group="default",
         cribl_username="admin", cribl_password="pw",
+        cribl_fleet="default_fleet", cribl_sync_interval=0,
         resource_prefix="logstream-", logging_account_id="337394138208",
     )
     provisioner, pipeline, roles = FakeProvisioner(), FakePipelineAdmin(), FakeAccessRoles()

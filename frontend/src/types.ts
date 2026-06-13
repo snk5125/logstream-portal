@@ -21,6 +21,7 @@ export interface Source {
   description: string
   columns: { name: string; type: string }[]
   subscriptions: SubRef[]
+  origin?: string
 }
 
 export interface Workload {

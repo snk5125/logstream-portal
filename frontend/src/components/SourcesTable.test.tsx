@@ -21,6 +21,17 @@ it('renders sources with sensitivity chips and subscription refs', () => {
   expect(screen.getByText('ops (active)')).toBeInTheDocument()
 })
 
+it('badges Cribl-discovered sources as pending classification', () => {
+  const discovered: Source[] = [{
+    fqn: 'cribl://522412052544/storefront_web/new_metric_log', name: 'new_metric_log',
+    log_type: 'unknown', sensitivity: 'sensitive', est_volume_per_min: 120,
+    description: 'discovered from Cribl — pending classification', columns: [],
+    subscriptions: [], origin: 'cribl',
+  }]
+  render(<SourcesTable sources={discovered} checked={new Set()} onToggle={() => {}} />)
+  expect(screen.getByText('discovered')).toBeInTheDocument()
+})
+
 it('reports toggles through the callback', () => {
   const onToggle = vi.fn()
   render(<SourcesTable sources={sources} checked={new Set()} onToggle={onToggle} />)

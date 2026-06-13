@@ -30,6 +30,15 @@ export default function SourcesTable({ sources, checked, onToggle }: {
             </td>
             <td>
               <b>{s.name}</b>
+              {s.origin === 'cribl' && (
+                <span
+                  className="chip"
+                  title="Discovered live from Cribl — pending classification in Unity Catalog"
+                  style={{ marginLeft: 6 }}
+                >
+                  discovered
+                </span>
+              )}
               <div className="muted small">{s.description}</div>
             </td>
             <td>{s.log_type}</td>
