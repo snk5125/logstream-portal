@@ -1,4 +1,4 @@
-<svg width="880" viewBox="0 0 880 736" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
+<svg width="1120" viewBox="0 0 1120 736" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif">
   <style>
     .t{font-size:14px;fill:#1d2433}.ts{font-size:12px;fill:#69707f}.th{font-size:14px;font-weight:500;fill:#1d2433}
     .arr{stroke:#888780;stroke-width:1.5;fill:none}.ctl{stroke:#7F77DD;stroke-width:1.4;fill:none;stroke-dasharray:5 4}
@@ -10,75 +10,77 @@
     <marker id="ahp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#7F77DD"/></marker>
   </defs>
 
-  <rect x="0" y="0" width="880" height="736" fill="#ffffff"/>
+  <rect x="0" y="0" width="1120" height="736" fill="#ffffff"/>
   <text x="40" y="28" class="th" font-size="16">LogStream portal — Cribl on AWS (us-east-1)</text>
   <text x="40" y="46" class="ts">solid = data path · dashed = control plane · dashed outline = scale-out pattern</text>
 
-  <g><rect x="40" y="60" width="160" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="120" y="78" class="t" fill="#444441" text-anchor="middle">Operator browser</text><text x="120" y="92" class="ts" text-anchor="middle">IP-allowlisted</text></g>
+  <g><rect x="30" y="406" width="150" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="105" y="428" class="t" fill="#444441" text-anchor="middle">Operator browser</text><text x="105" y="443" class="ts" text-anchor="middle">IP-allowlisted</text></g>
+  <line x1="180" y1="420" x2="296" y2="360" class="ctl" marker-end="url(#ahp)"/>
+  <text x="236" y="378" class="ts" fill="#7F77DD" text-anchor="middle">request</text>
+  <line x1="310" y1="524" x2="180" y2="440" class="ctl" marker-end="url(#ahp)"/>
+  <text x="226" y="454" class="ts" fill="#7F77DD" text-anchor="middle">serve SPA / API</text>
 
-  <rect x="40" y="118" width="290" height="152" rx="8" fill="none" stroke="#888780" stroke-width="1.3"/>
-  <text x="54" y="138" class="th">Workload Account A · 522412052544</text><text x="54" y="154" class="ts">prod-ecommerce</text>
-  <g><rect x="56" y="164" width="258" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="185" y="185" class="t" fill="#085041" text-anchor="middle">Cribl Edge — EC2</text><text x="185" y="200" class="ts" text-anchor="middle">storefront_web · orders_api · tag</text></g>
-  <g><rect x="56" y="224" width="258" height="38" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="185" y="247" class="t" fill="#444441" text-anchor="middle">Interface VPC endpoint</text></g>
+  <g transform="translate(240,0)">
+    <rect x="40" y="118" width="290" height="152" rx="8" fill="none" stroke="#888780" stroke-width="1.3"/>
+    <text x="54" y="138" class="th">Workload Account A · 522412052544</text><text x="54" y="154" class="ts">prod-ecommerce</text>
+    <g><rect x="56" y="164" width="258" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="185" y="185" class="t" fill="#085041" text-anchor="middle">Cribl Edge — EC2</text><text x="185" y="200" class="ts" text-anchor="middle">storefront_web · orders_api · tag</text></g>
+    <g><rect x="56" y="224" width="258" height="38" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="185" y="247" class="t" fill="#444441" text-anchor="middle">Interface VPC endpoint</text></g>
 
-  <rect x="350" y="118" width="290" height="152" rx="8" fill="none" stroke="#888780" stroke-width="1.3"/>
-  <text x="364" y="138" class="th">Workload Account B · 624627265315</text><text x="364" y="154" class="ts">prod-platform</text>
-  <g><rect x="366" y="164" width="258" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="495" y="185" class="t" fill="#085041" text-anchor="middle">Cribl Edge — EC2</text><text x="495" y="200" class="ts" text-anchor="middle">identity_svc · batch_etl · tag</text></g>
-  <g><rect x="366" y="224" width="258" height="38" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="495" y="247" class="t" fill="#444441" text-anchor="middle">Interface VPC endpoint</text></g>
+    <rect x="350" y="118" width="290" height="152" rx="8" fill="none" stroke="#888780" stroke-width="1.3"/>
+    <text x="364" y="138" class="th">Workload Account B · 624627265315</text><text x="364" y="154" class="ts">prod-platform</text>
+    <g><rect x="366" y="164" width="258" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="495" y="185" class="t" fill="#085041" text-anchor="middle">Cribl Edge — EC2</text><text x="495" y="200" class="ts" text-anchor="middle">identity_svc · batch_etl · tag</text></g>
+    <g><rect x="366" y="224" width="258" height="38" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="495" y="247" class="t" fill="#444441" text-anchor="middle">Interface VPC endpoint</text></g>
 
-  <text x="650" y="200" class="th" fill="#888780" text-anchor="middle">⋯</text>
+    <text x="650" y="200" class="th" fill="#888780" text-anchor="middle">⋯</text>
 
-  <rect x="668" y="118" width="192" height="152" rx="8" class="ghost"/>
-  <text x="682" y="138" class="th" fill="#69707f">Workload Account N</text><text x="682" y="154" class="ts">each new account, same pattern</text>
-  <g><rect x="684" y="164" width="160" height="52" rx="6" class="ghost"/><text x="764" y="185" class="t" fill="#69707f" text-anchor="middle">Cribl Edge — EC2</text><text x="764" y="200" class="ts" text-anchor="middle">your_workloads · tag</text></g>
-  <g><rect x="684" y="224" width="160" height="38" rx="6" class="ghost"/><text x="764" y="247" class="t" fill="#69707f" text-anchor="middle">Interface VPC endpoint</text></g>
+    <rect x="668" y="118" width="192" height="152" rx="8" class="ghost"/>
+    <text x="682" y="138" class="th" fill="#69707f">Workload Account N</text><text x="682" y="154" class="ts">each new account, same pattern</text>
+    <g><rect x="684" y="164" width="160" height="52" rx="6" class="ghost"/><text x="764" y="185" class="t" fill="#69707f" text-anchor="middle">Cribl Edge — EC2</text><text x="764" y="200" class="ts" text-anchor="middle">your_workloads · tag</text></g>
+    <g><rect x="684" y="224" width="160" height="38" rx="6" class="ghost"/><text x="764" y="247" class="t" fill="#69707f" text-anchor="middle">Interface VPC endpoint</text></g>
 
-  <rect x="40" y="302" width="820" height="326" rx="8" stroke="#888780" stroke-width="1.5" fill="none"/>
-  <text x="54" y="322" class="th">Central Logging Platform · 337394138208</text>
+    <rect x="40" y="302" width="820" height="326" rx="8" stroke="#888780" stroke-width="1.5" fill="none"/>
+    <text x="54" y="322" class="th">Central Logging Platform · 337394138208</text>
 
-  <g><rect x="56" y="334" width="150" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="131" y="354" class="t" fill="#444441" text-anchor="middle">ALB</text><text x="131" y="369" class="ts" text-anchor="middle">operator-IP only</text></g>
-  <g><rect x="222" y="334" width="186" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="315" y="354" class="t" fill="#444441" text-anchor="middle">Endpoint service + NLB (A)</text><text x="315" y="369" class="ts" text-anchor="middle">allowlist: workload A</text></g>
-  <g><rect x="424" y="334" width="186" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="517" y="354" class="t" fill="#444441" text-anchor="middle">Endpoint service + NLB (B)</text><text x="517" y="369" class="ts" text-anchor="middle">allowlist: workload B</text></g>
-  <text x="624" y="362" class="th" fill="#888780" text-anchor="middle">⋯</text>
-  <g><rect x="644" y="334" width="186" height="46" rx="6" class="ghost"/><text x="737" y="354" class="t" fill="#69707f" text-anchor="middle">Endpoint service + NLB (N)</text><text x="737" y="369" class="ts" text-anchor="middle">allowlist: workload N</text></g>
+    <g><rect x="56" y="334" width="150" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="131" y="354" class="t" fill="#444441" text-anchor="middle">ALB</text><text x="131" y="369" class="ts" text-anchor="middle">operator-IP only</text></g>
+    <g><rect x="222" y="334" width="186" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="315" y="354" class="t" fill="#444441" text-anchor="middle">Endpoint service + NLB (A)</text><text x="315" y="369" class="ts" text-anchor="middle">allowlist: workload A</text></g>
+    <g><rect x="424" y="334" width="186" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="517" y="354" class="t" fill="#444441" text-anchor="middle">Endpoint service + NLB (B)</text><text x="517" y="369" class="ts" text-anchor="middle">allowlist: workload B</text></g>
+    <text x="624" y="362" class="th" fill="#888780" text-anchor="middle">⋯</text>
+    <g><rect x="644" y="334" width="186" height="46" rx="6" class="ghost"/><text x="737" y="354" class="t" fill="#69707f" text-anchor="middle">Endpoint service + NLB (N)</text><text x="737" y="369" class="ts" text-anchor="middle">allowlist: workload N</text></g>
 
-  <rect x="56" y="398" width="396" height="166" rx="8" fill="none" stroke="#5DCAA5" stroke-width="1.2"/>
-  <text x="70" y="415" class="ts">Cribl-central — EC2 (instance role)</text>
-  <g><rect x="70" y="422" width="118" height="70" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="129" y="450" class="t" fill="#085041" text-anchor="middle">Cribl leader</text><text x="129" y="465" class="ts" text-anchor="middle">API :9000</text><text x="129" y="479" class="ts" text-anchor="middle">enroll :4200</text></g>
-  <g><rect x="196" y="422" width="118" height="70" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="255" y="450" class="t" fill="#085041" text-anchor="middle">Cribl worker</text><text x="255" y="465" class="ts" text-anchor="middle">default group</text><text x="255" y="479" class="ts" text-anchor="middle">ingest :10300</text></g>
-  <g><rect x="70" y="504" width="244" height="52" rx="6" fill="#EEEDFE" stroke="#534AB7"/><text x="192" y="525" class="t" fill="#3C3489" text-anchor="middle">Portal</text><text x="192" y="540" class="ts" text-anchor="middle">FastAPI + SPA · :8000</text></g>
+    <rect x="56" y="398" width="396" height="166" rx="8" fill="none" stroke="#5DCAA5" stroke-width="1.2"/>
+    <text x="70" y="415" class="ts">Cribl-central — EC2 (instance role)</text>
+    <g><rect x="70" y="422" width="118" height="70" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="129" y="450" class="t" fill="#085041" text-anchor="middle">Cribl leader</text><text x="129" y="465" class="ts" text-anchor="middle">API :9000</text><text x="129" y="479" class="ts" text-anchor="middle">enroll :4200</text></g>
+    <g><rect x="196" y="422" width="118" height="70" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="255" y="450" class="t" fill="#085041" text-anchor="middle">Cribl worker</text><text x="255" y="465" class="ts" text-anchor="middle">default group</text><text x="255" y="479" class="ts" text-anchor="middle">ingest :10300</text></g>
+    <g><rect x="70" y="504" width="244" height="52" rx="6" fill="#EEEDFE" stroke="#534AB7"/><text x="192" y="525" class="t" fill="#3C3489" text-anchor="middle">Portal</text><text x="192" y="540" class="ts" text-anchor="middle">FastAPI + SPA · :8000</text></g>
 
-  <g><rect x="476" y="398" width="134" height="46" rx="6" fill="#FAEEDA" stroke="#854F0B"/><text x="543" y="416" class="t" fill="#633806" text-anchor="middle">Kinesis + SQS</text><text x="543" y="430" class="ts" text-anchor="middle">consumer streams</text></g>
-  <g><rect x="476" y="452" width="134" height="44" rx="6" fill="#FAEEDA" stroke="#854F0B"/><text x="543" y="472" class="t" fill="#633806" text-anchor="middle">SIEM</text><text x="543" y="486" class="ts" text-anchor="middle">consumer</text></g>
-  <g><rect x="476" y="504" width="134" height="44" rx="6" fill="#FAEEDA" stroke="#854F0B"/><text x="543" y="531" class="t" fill="#633806" text-anchor="middle">S3 log archive</text></g>
+    <g><rect x="476" y="398" width="134" height="46" rx="6" fill="#FAEEDA" stroke="#854F0B"/><text x="543" y="416" class="t" fill="#633806" text-anchor="middle">Kinesis + SQS</text><text x="543" y="430" class="ts" text-anchor="middle">consumer streams</text></g>
+    <g><rect x="476" y="452" width="134" height="44" rx="6" fill="#FAEEDA" stroke="#854F0B"/><text x="543" y="472" class="t" fill="#633806" text-anchor="middle">SIEM</text><text x="543" y="486" class="ts" text-anchor="middle">consumer</text></g>
+    <g><rect x="476" y="504" width="134" height="44" rx="6" fill="#FAEEDA" stroke="#854F0B"/><text x="543" y="531" class="t" fill="#633806" text-anchor="middle">S3 log archive</text></g>
 
-  <g><rect x="476" y="556" width="134" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="543" y="581" class="t" fill="#444441" text-anchor="middle">SSM secrets · ECR</text></g>
-  <g><rect x="196" y="574" width="256" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="324" y="599" class="t" fill="#444441" text-anchor="middle">VPC · subnets · SGs · IAM roles</text></g>
+    <g><rect x="476" y="556" width="134" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="543" y="581" class="t" fill="#444441" text-anchor="middle">SSM secrets · ECR</text></g>
+    <g><rect x="196" y="574" width="256" height="40" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="324" y="599" class="t" fill="#444441" text-anchor="middle">VPC · subnets · SGs · IAM roles</text></g>
 
-  <g><rect x="117" y="650" width="150" height="44" rx="6" fill="#FAECE7" stroke="#993C1D"/><text x="192" y="670" class="t" fill="#712B13" text-anchor="middle">Databricks UC</text><text x="192" y="685" class="ts" text-anchor="middle">catalog inventory</text></g>
+    <g><rect x="117" y="650" width="150" height="44" rx="6" fill="#FAECE7" stroke="#993C1D"/><text x="192" y="670" class="t" fill="#712B13" text-anchor="middle">Databricks UC</text><text x="192" y="685" class="ts" text-anchor="middle">catalog inventory</text></g>
 
-  <line x1="185" y1="262" x2="305" y2="334" class="arr" marker-end="url(#ah)"/>
-  <line x1="495" y1="262" x2="512" y2="334" class="arr" marker-end="url(#ah)"/>
-  <text x="356" y="298" class="ts" text-anchor="middle">tcpjson :10300</text>
-  <line x1="315" y1="380" x2="262" y2="422" class="arr" marker-end="url(#ah)"/>
-  <line x1="517" y1="380" x2="292" y2="422" class="arr" marker-end="url(#ah)"/>
-  <line x1="314" y1="438" x2="476" y2="424" class="arr" marker-end="url(#ah)"/>
-  <text x="402" y="412" class="ts" text-anchor="middle">fork routes</text>
-  <line x1="314" y1="458" x2="476" y2="474" class="arr" marker-end="url(#ah)"/>
-  <line x1="314" y1="480" x2="476" y2="524" class="arr" marker-end="url(#ah)"/>
-  <text x="372" y="512" class="ts" text-anchor="middle">archive</text>
+    <line x1="185" y1="262" x2="305" y2="334" class="arr" marker-end="url(#ah)"/>
+    <line x1="495" y1="262" x2="512" y2="334" class="arr" marker-end="url(#ah)"/>
+    <text x="356" y="298" class="ts" text-anchor="middle">tcpjson :10300</text>
+    <line x1="315" y1="380" x2="262" y2="422" class="arr" marker-end="url(#ah)"/>
+    <line x1="517" y1="380" x2="292" y2="422" class="arr" marker-end="url(#ah)"/>
+    <line x1="314" y1="438" x2="476" y2="424" class="arr" marker-end="url(#ah)"/>
+    <text x="400" y="450" class="ts" text-anchor="middle">fork routes</text>
+    <line x1="314" y1="458" x2="476" y2="474" class="arr" marker-end="url(#ah)"/>
+    <line x1="314" y1="480" x2="476" y2="524" class="arr" marker-end="url(#ah)"/>
+    <text x="372" y="512" class="ts" text-anchor="middle">archive</text>
 
-  <line x1="764" y1="262" x2="740" y2="334" class="garr" marker-end="url(#ah)"/>
-  <polyline points="680,382 466,390 300,424" class="garr" marker-end="url(#ah)"/>
+    <line x1="764" y1="262" x2="740" y2="334" class="garr" marker-end="url(#ah)"/>
+    <polyline points="680,382 466,390 300,424" class="garr" marker-end="url(#ah)"/>
 
-  <polyline points="112,100 48,112 48,357 56,357" class="ctl" marker-end="url(#ahp)"/>
-  <text x="52" y="232" class="ts" fill="#7F77DD">request</text>
-  <polyline points="56,373 42,386 42,524 70,524" class="ctl" marker-end="url(#ahp)"/>
-  <text x="46" y="470" class="ts" fill="#7F77DD">serve SPA / API</text>
-  <line x1="160" y1="504" x2="150" y2="492" class="ctl" marker-end="url(#ahp)"/>
-  <text x="196" y="502" class="ts">commit / deploy</text>
-  <line x1="192" y1="556" x2="192" y2="650" class="ctl" marker-end="url(#ahp)"/>
-  <text x="200" y="612" class="ts">read catalog</text>
+    <line x1="160" y1="504" x2="150" y2="492" class="ctl" marker-end="url(#ahp)"/>
+    <text x="196" y="502" class="ts">commit / deploy</text>
+    <line x1="192" y1="556" x2="192" y2="650" class="ctl" marker-end="url(#ahp)"/>
+    <text x="200" y="612" class="ts">read catalog</text>
+  </g>
 
   <g><rect x="40" y="716" width="14" height="14" rx="3" fill="#E1F5EE" stroke="#0F6E56"/></g><text x="60" y="727" class="ts">Cribl</text>
   <g><rect x="118" y="716" width="14" height="14" rx="3" fill="#EEEDFE" stroke="#534AB7"/></g><text x="138" y="727" class="ts">Portal</text>
