@@ -74,6 +74,8 @@ docker run -d --name portal --restart unless-stopped \
   -e CRIBL_GROUP=default \
   -e CRIBL_USERNAME=admin \
   -e CRIBL_PASSWORD="$CRIBL_PW" \
+  -e CRIBL_FLEET=default_fleet \
+  -e CRIBL_SYNC_INTERVAL_SECONDS=30 \
   -e PORTAL_SESSION_SECRET="$SESS" \
   -e CATALOG_SNAPSHOT_SEED=/app/fixtures/catalog_snapshot.json \
   ${ecr_repo_url}:latest
