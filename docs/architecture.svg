@@ -13,6 +13,7 @@
   <rect x="0" y="0" width="1120" height="736" fill="#ffffff"/>
   <text x="40" y="28" class="th" font-size="16">LogStream portal — Cribl on AWS (us-east-1)</text>
   <text x="40" y="46" class="ts">solid = data path · dashed = control plane · dashed outline = scale-out pattern</text>
+  <text x="40" y="64" class="ts" fill="#3C3489">Workload A's Edge is leader-managed (enrolled in default_fleet); the portal auto-discovers new fleet sources into the catalog — sensitive until UC-classified.</text>
 
   <g><rect x="30" y="406" width="150" height="46" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="105" y="428" class="t" fill="#444441" text-anchor="middle">Operator browser</text><text x="105" y="443" class="ts" text-anchor="middle">IP-allowlisted</text></g>
   <line x1="180" y1="420" x2="296" y2="360" class="ctl" marker-end="url(#ahp)"/>
@@ -23,7 +24,7 @@
   <g transform="translate(240,0)">
     <rect x="40" y="118" width="290" height="152" rx="8" fill="none" stroke="#888780" stroke-width="1.3"/>
     <text x="54" y="138" class="th">Workload Account A · 522412052544</text><text x="54" y="154" class="ts">prod-ecommerce</text>
-    <g><rect x="56" y="164" width="258" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="185" y="185" class="t" fill="#085041" text-anchor="middle">Cribl Edge — EC2</text><text x="185" y="200" class="ts" text-anchor="middle">storefront_web · orders_api · tag</text></g>
+    <g><rect x="56" y="164" width="258" height="52" rx="6" fill="#E1F5EE" stroke="#0F6E56"/><text x="185" y="185" class="t" fill="#085041" text-anchor="middle">Cribl Edge — EC2 · managed</text><text x="185" y="200" class="ts" text-anchor="middle">storefront_web · orders_api · → default_fleet</text></g>
     <g><rect x="56" y="224" width="258" height="38" rx="6" fill="#F1EFE8" stroke="#5F5E5A"/><text x="185" y="247" class="t" fill="#444441" text-anchor="middle">Interface VPC endpoint</text></g>
 
     <rect x="350" y="118" width="290" height="152" rx="8" fill="none" stroke="#888780" stroke-width="1.3"/>
@@ -77,7 +78,7 @@
     <polyline points="680,382 466,390 300,424" class="garr" marker-end="url(#ah)"/>
 
     <line x1="160" y1="504" x2="150" y2="492" class="ctl" marker-end="url(#ahp)"/>
-    <text x="196" y="502" class="ts">commit / deploy</text>
+    <text x="196" y="502" class="ts">commit / deploy · discover fleet</text>
     <line x1="192" y1="556" x2="192" y2="650" class="ctl" marker-end="url(#ahp)"/>
     <text x="200" y="612" class="ts">read catalog</text>
   </g>

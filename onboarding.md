@@ -15,6 +15,9 @@ collected and **fork** the sources they want into their own dedicated stream
 (Kinesis or SQS) — without filing tickets. Sensitive sources require a platform
 admin's approval. Each forked stream comes with a downloadable, least-privilege
 **cross-account IAM read role** so the consuming team can read only their stream.
+Newly-collected sources are **auto-discovered from Cribl** and surface in the
+catalog on their own (quarantined as `sensitive` until Unity Catalog classifies
+them) — no manual re-seed needed.
 
 It runs **live on AWS across three accounts** with **Cribl Stream** as the
 pipeline and a real **Databricks Unity Catalog** as the source-of-truth
@@ -46,8 +49,25 @@ Central Logging Platform account (337394138208)
   EBS volume (portal data tier) ──► /data (SQLite)
 ```
 
+**Auto-discovery (managed Edge → catalog).** Workload A's Edge runs in **managed
+mode**, enrolled into the leader's single **`default_fleet`** over PrivateLink
+`:4200` (Cribl Free permits one Stream worker group **and** one Edge fleet, but
+**no subfleets** — so it's one shared fleet; see `cribl/README.md`'s license
+re-gate). A background poll in the portal (`CRIBL_SYNC_INTERVAL_SECONDS`, default
+off) reads the fleet's inputs from the **co-located leader**, recovers each
+source's identity from its `tag_*` Eval pipeline, and **merges new sources into
+the catalog**: UC-wins by `(account_id, workload, source_name)` tuple, so a source
+seen only in Cribl appears as `origin:cribl`, `sensitive` (approval-gated), with a
+synthetic `cribl://…` fqn — until UC classifies it. Workload B/N stay standalone
+Edge collectors (one shared fleet can carry only one forward endpoint, so only one
+account is managed). Code: `app/cribl/discovery.py`, `app/catalog/sync.py`,
+`merge_discovered` in `app/catalog/service.py`.
+
 **Key invariants** (don't break these):
 
+- **Discovery is UC-authoritative.** The on-disk catalog snapshot stays pure-UC;
+  discovered sources are merged from the `discovered_sources` table on every read,
+  never override a UC source, and default to `sensitive`.
 - Every event is tagged at the Edge with `account_id`, `account_alias`,
   `environment`, `workload`, `source_name`. A **fork = a Cribl Route** whose
   filter matches `account_id && workload && source_name`, plus a **Destination**
@@ -199,8 +219,16 @@ see §8.)
   UI: `aws ssm start-session --target <logging-instance-id>
   --document-name AWS-StartPortForwardingSession
   --parameters '{"portNumber":["9000"],"localPortNumber":["9000"]}'`.
-- **Cribl leader login:** `admin` / `admin` (private, VPC + SSM only; aligned to
-  the SSM `cribl_password` parameter).
+- **Cribl leader login:** `admin` / the value in SSM `/logstream/cribl_password`
+  (rotated away from the default `admin`; private, VPC + SSM only). The portal's
+  `CRIBL_PASSWORD` is baked into its container at `docker run` from that SSM param —
+  if you rotate the password, update SSM **and** redeploy the portal container, or
+  its Cribl integration breaks.
+- **Managed-Edge enrollment:** distributed settings are env-controlled
+  (`CRIBL_DIST_MODE=master`), so the leader's Auth token is read-only in the UI; it
+  is the Cribl default `criblmaster`. Managed edges enroll with
+  `CRIBL_DIST_LEADER_URL=tcp://criblmaster@<endpoint_dns>:4200?group=default_fleet`
+  (passed as the gitignored `cribl_auth_token` tfvar).
 - **Data durability:** the portal's SQLite lives on a dedicated EBS volume
   (`/opt/logstream-data` → container `/data`), so stream history survives
   container recreation and instance replacement.
@@ -240,6 +268,19 @@ These are distilled from the specs' as-built sections and `cribl/README.md`:
   serious infra work — it's the single biggest fragility.
 - **`fixtures/catalog_snapshot.json` mirrors `scripts/seed_catalog.py`** — change
   one, change the other, or the offline fallback drifts from the real UC.
+- **Cribl Free license shapes the discovery topology.** 1 worker group + 1 fleet,
+  **no subfleets**, `edge_procs:100`. Because one shared fleet carries one forward
+  endpoint, only **one** workload account (A) is a managed Edge; the rest stay
+  standalone. The `default_fleet` collection config (datagen + `tag_*` pipelines +
+  `tcpjson` forward + catch-all route) is seeded by `scripts/seed_cribl.py`'s
+  `seed_fleet()` (env: `CRIBL_FLEET`, `FLEET_ACCOUNTS`, `FLEET_FORWARD_HOST`).
+- **Managed-Edge `user_data` needs `user_data_replace_on_change = true`** (set on
+  `worker_b`): a plain user_data change is applied in-place and the new bootstrap
+  never re-runs (user_data executes only at first boot), so the Edge would silently
+  stay standalone. Replacement forces a real re-bootstrap + re-enrollment.
+- **Discovery is upsert-only (no prune in v1).** A source removed from Cribl
+  lingers in `discovered_sources` (and the catalog) until its row is deleted;
+  `last_seen_at` is recorded for a future TTL-prune.
 
 ---
 
@@ -255,6 +296,11 @@ These are distilled from the specs' as-built sections and `cribl/README.md`:
 - **Local state** → remote backend (see §8).
 - The **Peek-in-UI** path and the **bundle CLI snippets** are the two consumer
   surfaces; the SIEM consumer in the diagram is illustrative (not wired).
+- **Discovery next steps:** TTL-prune of stale `discovered_sources` rows; re-key
+  catalog subscriptions on the source tuple (a fork against a `cribl://` fqn won't
+  show its "subscribed" badge once UC later supplies a different fqn for the same
+  source); and, to manage **all** accounts, either a paid Cribl license (subfleets,
+  per-account config) or a per-node env-var forward host on the shared fleet.
 
 ---
 
