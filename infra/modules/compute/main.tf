@@ -223,6 +223,8 @@ resource "aws_instance" "worker_b" {
     auth_token   = var.cribl_auth_token
     fleet        = "default_fleet"
   })
+  # Re-bootstrap on user_data change (managed-edge enrollment runs at boot only).
+  user_data_replace_on_change = true
 
   lifecycle {
     ignore_changes = [ami]
