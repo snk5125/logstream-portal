@@ -6,5 +6,6 @@
   "awsAuthenticationMethod": "auto",
   "format": "json",
   "compression": "none",
+  "queueType": "standard",
   "description": "logstream-portal destination for stream 5"
 }

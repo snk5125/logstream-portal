@@ -81,5 +81,8 @@ def destination_for(spec: StreamSpec, region: str = "us-east-1") -> dict:
         "id": f"fork_{spec.stream_id}_dest", "type": "sqs",
         "queueName": spec.resource_ref, "region": region,
         "awsAuthenticationMethod": "auto", "format": "json",
-        "compression": "none", "description": desc,
+        # queueType is required by Cribl's SQS output schema; omitting it makes the
+        # reapply PATCH 500 ("should have required property 'queueType'"). Demo
+        # queues are standard (the provisioner never creates FIFO).
+        "compression": "none", "queueType": "standard", "description": desc,
     }
